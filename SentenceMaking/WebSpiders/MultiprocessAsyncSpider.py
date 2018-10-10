@@ -108,14 +108,15 @@ class load_biquge(object):
 
     def ShellProgress(self):
         pbar = tqdm(total=self.total)
-
         while True:
             tmp = self.getProgressStatus()
             if not tmp:
                 pbar.update(self.total-pbar.n)
                 break
-            print(tmp)
-            pbar.update(self.total-tmp)
+            if self.total-tmp-pbar.n <0:
+                pbar.update(0)
+            else:
+                pbar.update(self.total-tmp-pbar.n)
             time.sleep(1)
         pbar.close()
 
@@ -140,7 +141,6 @@ class load_biquge(object):
             loop.run_until_complete(asyncio.wait(tasks))
             time.sleep(1)
             if self.has_valid_urls() and self.q.qsize() < 0.05 *self.total:
-                print(self.q.qsize())
                 self.put_valid_urls()
 
     def has_valid_urls(self):
