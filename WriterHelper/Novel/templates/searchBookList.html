@@ -1,0 +1,11 @@
+<p></p>
+<form id="book">
+    {% csrf_token %}
+    <p>搜索多个请以;隔开，可以用":"指明作者名和书籍的键对值：</p>
+    <p><input id="search_key" name="search_key" type="text" value="斩龙"></p>
+    <p><button class="btn btn-primary" type="button" id="crawlspider" >在线搜索</button></p>
+</form>
+<div class="row">
+    <div class="col-sm-12" id="bookinfo">
+    </div>
+</div>

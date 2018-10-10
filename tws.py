@@ -1,0 +1,71 @@
+# -*- coding: utf-8 -*-
+# !/usr/bin/env python
+"""
+-------------------------------------------------
+   File Name：     
+   Description：
+-------------------------------------------------
+__author__ = 'zhu733756'
+"""
+
+class A(object):
+    _instance=None
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance=super(A,cls).__new__(cls)
+        return cls._instance
+
+class Singleton(type):
+    _instance={}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instance:
+            cls._instance[cls]=super(Singleton,cls).__call__(*args,**kwargs)
+        return cls._instance[cls]
+
+class Myclass(A):
+    def __init__(self, m):
+        self.m = m
+
+class myclass(metaclass=Singleton):
+   def __init__(self,m):
+       self.m=m
+
+
+c=1
+d=2
+subclass=Myclass(m=1)
+subclass2=Myclass(m=2)
+print(subclass.m)
+print(subclass2.m)
+
+from functools import wraps
+def singleton2(cls):
+    instances={}
+    @wraps(cls)
+    def getinstance(*args,**kw):
+        if cls not in instances:
+            instances[cls]=cls(*args,**kw)
+        return instances[cls]
+    return getinstance
+
+@singleton2
+class B(object):
+    def __init__(self,m):
+        self.m=m
+
+a=B(m=1)
+b=B(m=2)
+print(a.m)
+print(b.m)
+
+import tqdm,time,random
+
+pbar = tqdm.tqdm(total=80)
+while True:
+    tmp=random.choice([7,8,9])
+    if tmp >pbar.total:
+        pbar.update(pbar.total-pbar.n)
+        break
+    pbar.update(tmp)
+    time.sleep(1)
+pbar.close()
