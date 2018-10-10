@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import re,requests,logging,time,asyncio,aiohttp
 from tqdm import tqdm
 from multiprocessing import Process,Queue
+from collections import deque
 # from SpiderUtils import MainLoggerConfig
 
 sys.setrecursionlimit(1000000)#防止迭代超过上限报错
@@ -25,19 +26,20 @@ class load_biquge(object):
 
     def __init__(self,mother_url=None):
 
-        self.mother_url=mother_url#文章链接
-        self.q=Queue()
-        self.total=None
-        self.invalid_q=Queue()
+        self.mother_url = mother_url#文章链接
+        self.q = Queue()
+        self.total = None
+        self.invalid_q = Queue()
+        self.status_q = deque(maxlen=10)
         self.path = self.get_path()
+
 
     def get_path(self):
         '''
         获取存储目录
         :return:
         '''
-        # BaseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        BaseDir="."
+        BaseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         first_page=self.html_parse(self.mother_url)
         path=os.path.join(BaseDir,"NovelsRawData\\{}\\{}". \
             format(first_page.find("p").string.strip().split("：")[-1],
@@ -45,6 +47,9 @@ class load_biquge(object):
         if not os.path.exists(path):
             os.makedirs(path)
         return path
+
+    def check_downloaded(self):
+        pass
 
     def html_parse(self,url):
         '''
@@ -97,19 +102,18 @@ class load_biquge(object):
                     with open(os.path.join(self.path, title) + '.txt',
                               "w+", encoding="utf-8") as f:
                         f.write("\n".join("".join(text)))
-                    # self.logger.debug("Successfully downloaded a file:%s.txt" % title)
                 else:
                     self.invalid_q.put(url)
 
     def getProgressStatus(self):
         left = self.q.qsize() + self.invalid_q.qsize()
-        # return int((1 - left / self.total) * 100)
         return left
 
     def ShellProgress(self):
         pbar = tqdm(total=self.total)
         while True:
             tmp = self.getProgressStatus()
+            self.status_q.append(tmp)
             if not tmp:
                 pbar.update(self.total-pbar.n)
                 break
@@ -167,15 +171,13 @@ if __name__ =="__main__":
 
     m=load_biquge('https://www.biquge5200.cc/0_46/')
     m.put_page_urls()
-    # p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
+    p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
     p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
     p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
     for p in (p2, p3):
         p.start()
     for p in (p2, p3):
         p.join()
-    if not p3.is_alive():
-        pass
 
 
 

@@ -58,14 +58,21 @@ b=B(m=2)
 print(a.m)
 print(b.m)
 
-import tqdm,time,random
+# import tqdm,time,random
+#
+# pbar = tqdm.tqdm(total=80)
+# while True:
+#     tmp=random.choice([7,8,9])
+#     if tmp >pbar.total:
+#         pbar.update(pbar.total-pbar.n)
+#         break
+#     pbar.update(tmp)
+#     time.sleep(1)
+# pbar.close()
 
-pbar = tqdm.tqdm(total=80)
-while True:
-    tmp=random.choice([7,8,9])
-    if tmp >pbar.total:
-        pbar.update(pbar.total-pbar.n)
-        break
-    pbar.update(tmp)
-    time.sleep(1)
-pbar.close()
+from collections import deque
+
+l=deque([1,2,4,6],maxlen=4)
+l.append(0)
+print(l)
+print(l.pop())

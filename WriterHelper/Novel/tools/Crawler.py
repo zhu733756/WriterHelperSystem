@@ -33,7 +33,6 @@ class FIFOQueue(object):
             if url:
                 self.redis.lpush(self.redis_key, url)
 
-
     def pop(self):
         return self.redis.lpop(self.redis_key)
 
@@ -78,13 +77,9 @@ class Crawler(object):
     def push(self,items):
         self._q.push(items)
 
-    def crawl(self,reason=None):
-        while 1:
-            if self._q.size():
-                for req in self.next_requests():
-                    self.download(req)
-            if reason=="break":
-                break
+    def crawl(self):
+        for req in self.next_requests():
+            self.download(req)
 
 crawler=Crawler()
 
