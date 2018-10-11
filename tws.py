@@ -76,3 +76,37 @@ l=deque([1,2,4,6],maxlen=4)
 l.append(0)
 print(l)
 print(l.pop())
+
+s={"a":1,"b":2}
+s2={}
+s2.update(s)
+print(s2)
+
+valid_urls=[1,2,4]
+res={url:"ok" for url in valid_urls}
+print(res)
+
+a={}
+
+def get():
+    global a
+    print(a)
+    a.update({"a":0})
+    print(a)
+
+get()
+print(a)
+
+
+class ABC(object):
+
+    def __init__(self,a):
+        self.a=a
+
+    def get_a(self,m):
+        return m
+print("====")
+print(ABC)
+print(ABC(1).__getattribute__("get_a")(2))
+print(ABC(1))
+print("----")

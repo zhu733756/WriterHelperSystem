@@ -25,6 +25,5 @@ urlpatterns = [
     path('search_dir/', views.search_dir,name="search_dir"),
     path('search_booklist/', views.search_booklist,name="search_booklist"),
     path('search_crawler_status/', views.search_crawler_status,name="search_crawler_status"),
-    path('progress_status/', views.progress_status,name="progress_status"),
 ]
 

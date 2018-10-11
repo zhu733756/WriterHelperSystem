@@ -3,15 +3,16 @@
 @author: zh
 """
 import os,sys
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-sys.path.append(os.path.join(BASE_DIR,"SentenceMaking"))
+sys.path.append(os.path.dirname(__file__))
 
-from WebSpiders.MultiprocessAsyncSpider import *
-from SplitWords.split_words import *
-import requests,re
+from MultiprocessAsyncSpider import load_biquge
+from split_words import generate_key
+import requests,re,time
+from collections import deque
 from redis import StrictRedis,ConnectionPool
 from requests import RequestException
-from multiprocessing import Process
+from multiprocessing import Process,Manager,Pool
+
 
 class FIFOQueue(object):
 
@@ -19,8 +20,9 @@ class FIFOQueue(object):
 
         self.redis=StrictRedis(
             connection_pool=ConnectionPool(host="localhost",port=6379))
-        self.seen=set()
+        self.redis.flushdb()
         self.redis_key=redis_key
+        self.seen = set()
 
     def get_seens(self,items):
         for item in items:
@@ -28,10 +30,9 @@ class FIFOQueue(object):
                 yield item
                 self.seen.add(item)
 
-    def push(self,items):
-        for url in self.get_seens(items):
-            if url:
-                self.redis.lpush(self.redis_key, url)
+    def push(self,instanceList):
+        for instance in instanceList:
+           self.redis.lpush(self.redis_key, instance)
 
     def pop(self):
         return self.redis.lpop(self.redis_key)
@@ -43,23 +44,27 @@ FIFO_q=FIFOQueue("Novels:start_urls")
 
 class Crawler(object):
 
-    on_progress=[]
+    status_q={}
 
     def __init__(self):
         self._q=FIFO_q
 
-    def download(self,req):
-        m = load_biquge(req)
-        m.put_page_urls()
-        p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
-        p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
-        p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
+    def download(self,instance):
+        self.status_q.setdefault(instance,deque())
+        instance.put_page_urls()
+        p1 = Process(name="CrawlProcess-1", target=instance.get_queue, args=())
+        p2 = Process(name="CrawlProcess-2", target=instance.get_queue, args=())
+        p3 = Process(name="ProgressProcess", target=instance.ShellProgress, args=(self.status_q[instance]))
         for p in (p1, p2, p3):
             p.start()
-        for p in (p1, p2,p3):
+        for p in (p1,p2,p3):
             p.join()
-        if not p3.is_alive():
-            self.on_progress.remove(req)
+
+    def filter(self, items):
+        return self._q.get_seens(items)
+
+    def push(self, items):
+        self._q.push(items)
 
     def next_requests(self):
         found=0
@@ -67,19 +72,8 @@ class Crawler(object):
             req= self._q.pop()
             if not req:
                 break
-            self.on_progress.append(req)
             yield req
             found += 1
-
-    def filter(self,items):
-        return self._q.get_seens(items)
-
-    def push(self,items):
-        self._q.push(items)
-
-    def crawl(self):
-        for req in self.next_requests():
-            self.download(req)
 
 crawler=Crawler()
 
@@ -166,6 +160,15 @@ class BookInfoSpider(object):
         except RequestException as e:
             print("RequestException:%s"%e.args)
 
+
 if __name__=="__main__":
 
-    crawler.crawl()
+    items=crawler.filter(["https://www.biquge5200.cc/0_46/","https://www.biquge5200.cc/7_7222/"])
+    crawler.push([url for url in items])
+    for req in crawler.next_requests():
+        crawler.download(load_biquge(req))
+
+
+
+
+

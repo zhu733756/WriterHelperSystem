@@ -10,13 +10,13 @@ __author__ = 'ZH'
 from requests import RequestException
 from bs4 import BeautifulSoup
 import re,os,requests,logging,sys,time,asyncio,aiohttp
-from SpiderUtils import MainLoggerConfig
+# from SpiderUtils import MainLoggerConfig
 from tqdm import tqdm
 from queue import LifoQueue
 
 sys.setrecursionlimit(1000000)#防止迭代超过上限报错
-LogPath=os.path.join(os.path.dirname(os.path.dirname(__file__)),"logs/logs.yaml")
-MainLoggerConfig.setup_logging(default_path=LogPath)
+# LogPath=os.path.join(os.path.dirname(os.path.dirname(__file__)),"logs/logs.yaml")
+# MainLoggerConfig.setup_logging(default_path=LogPath)
 # logging.getLogger("urllib3.connectionpool").setLevel(logging.INFO)
 
 class load_biquge(object):
@@ -67,7 +67,7 @@ class load_biquge(object):
         '''
         mode_page=self.html_parse(self.mother_url)
         ddList = mode_page.find_all("dd")
-        for dd in ddList:
+        for dd in ddList[:100]:
             self.q.put(dd.find("a").get("href"))
         self.total=len(self.q.queue)
         print("total",self.total)
@@ -99,7 +99,7 @@ class load_biquge(object):
 
     def get_queue(self):
         while True:
-            count = 1
+            count = 0
             tasks = []
             while count <= 9:
                 if not self.q.empty():
@@ -117,9 +117,11 @@ class load_biquge(object):
 #
 if __name__ =="__main__":
 
-    m=load_biquge('https://www.biquge5200.cc/0_844')
+    t=time.time()
+    m=load_biquge("https://www.biquge5200.cc/7_7222/")
     m.put_page_url()
     m.get_queue()
+    print(time.time()-t)
 
 
 

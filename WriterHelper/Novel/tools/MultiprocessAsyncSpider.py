@@ -37,9 +37,9 @@ class load_biquge(object):
         获取存储目录
         :return:
         '''
-        BaseDir=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        BaseDir=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
         first_page=self.html_parse(self.mother_url)
-        path=os.path.join(BaseDir,"NovelsRawData\\{}\\{}". \
+        path=os.path.join(BaseDir,"SentenceMaking\\NovelsRawData\\{}\\{}". \
             format(first_page.find("p").string.strip().split("：")[-1],
                    first_page.find("div",{"id":"info"}).find("h1").string))
         if not os.path.exists(path):
@@ -118,7 +118,7 @@ class load_biquge(object):
                 update =0
             else:
                 update=self.total-tmp-pbar.n
-            ins.append(int((pbar.n+update)*100/self.total))
+            ins.append(int((self.total-tmp)/self.total*100))
             pbar.update(update)
             time.sleep(1)
         pbar.close()

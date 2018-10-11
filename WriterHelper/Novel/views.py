@@ -1,8 +1,8 @@
 import os
 from django.http import JsonResponse
 from django.shortcuts import render
-from .tools import SearchTools, Crawler
-
+from .tools import SearchTools, MultiprocessAsyncSpider
+from .tools.Crawler import crawler,BookInfoSpider
 
 def index(request):
     return render(request, "menu.html")
@@ -52,7 +52,7 @@ def search_form(request):
 
 def search_booklist(request):
     book_req=request.POST.get("search_key").strip()
-    search_spider= Crawler.BookInfoSpider()
+    search_spider= BookInfoSpider()
     if ";"  not in book_req:
         if ":" in book_req:
             kwargs = {book_req.split(":")[0]: book_req.split(":")[1] }
@@ -71,21 +71,45 @@ def search_booklist(request):
             return JsonResponse(all_res,safe=False)
         return JsonResponse(search_spider.split_search_key(*args))
 
+instanceMapping={}
+
 def search_crawler_status(request):
 
-    reqs = request.POST.getlists("array[]")
-    crawler=Crawler.Crawler()
-    valid_urls,invalid_urls=crawler.filter(reqs),[url for url in reqs if url not in valid_urls]
-    crawler.push(urls)
+    global instanceMapping
+
+    if request.is_ajax():
+        reqs = request.POST.getlist("array[]")
+        valid_urls=crawler.filter(reqs)#去重
+        invalid_urls = [url for url in reqs if url not in valid_urls]
+        print(valid_urls)
+        spider = MultiprocessAsyncSpider.load_biquge
+        print(spider)
+        # for url in valid_urls:
+        #     instance=spider(url)
+        #     crawler.download(instance)
+        crawler.push([spider(url) for url in valid_urls])
+        instanceMapping.update({url: spider(url) for url in valid_urls})
+        print(instanceMapping)
+
+        res={url:"ok" for url in valid_urls}
+        if invalid_urls:
+            res.update({url: -1 for url in valid_urls})
+            return JsonResponse(res)
+        else:
+            return JsonResponse(res)
+    print("-----")
+    print(instanceMapping)
+    res = {}
+    instanceMappingRev={v:k for k,v in instanceMapping.items()}
+    for instance in instanceMapping.values():
+        status=Crawler.crawler.status_q[instance].pop()
+        res.setdefault(instanceMappingRev[instance],status)
+        print(res)
     if invalid_urls:
-        return JsonResponse([{"url":url,"status":"ok"} for url in urls])
+        res.update({url:-1 for url in valid_urls})
+        return JsonResponse(res)
     else:
-        res=[{"url": url, "status": ""} for url in invalid_url]
-        res.extend([{"url":url,"status":"ok"} for url in urls])
         return JsonResponse(res)
 
-def progress_status(request):
 
-    con_url=request.GET.get("url")
-    print(con_url)
 
