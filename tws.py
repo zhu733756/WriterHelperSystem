@@ -110,3 +110,9 @@ print(ABC)
 print(ABC(1).__getattribute__("get_a")(2))
 print(ABC(1))
 print("----")
+
+print({b"https://www.biquge5200.cc/7_7222/":123})
+
+urls=[b"https://www.biquge5200.cc/7_7222/"]
+res={url:"success" for url in urls}
+print(res)

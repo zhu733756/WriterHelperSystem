@@ -24,6 +24,7 @@ urlpatterns = [
     path('search_form/', views.search_form,name="search_form"),
     path('search_dir/', views.search_dir,name="search_dir"),
     path('search_booklist/', views.search_booklist,name="search_booklist"),
-    path('search_crawler_status/', views.search_crawler_status,name="search_crawler_status"),
+    path('search_duplicate_url/', views.search_duplicate_url,name="search_duplicate_url"),
+    path('search_crawl_status/', views.search_crawl_status,name="search_crawl_status"),
 ]
 

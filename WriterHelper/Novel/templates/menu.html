@@ -205,7 +205,7 @@
             arr_href.push(v);
         }
         $.ajax({
-            url: "{% url 'search_crawler_status' %}",
+            url: "{% url 'search_duplicate_url' %}",
             type: "POST",
             dataType: 'json',
             data: {
@@ -215,7 +215,8 @@
             success: function (data) {
                 console.log(data);
                 $.each(data, function (url,status) {
-                    if (status >= 0) {
+                    $("#prog_showQueue").show();
+                    if (status === "ok") {
                         for (var ind = 0; ind <= arr_href.length - 1; ind++) {
                             if (url === arr_href[ind]) {
                                 var author_info = arr_author[ind];
@@ -241,10 +242,10 @@
         var interval=setInterval(
                 function () {
                     $.getJSON(
-                        "{% url 'search_crawler_status' %}",
+                        "{% url 'search_crawl_status' %}",
                         $.each(data, function (u,s) {
-                            if (url === s) {
-                                if (s > 100) {
+                            if (url === u) {
+                                if (s === 100) {
                                     clearInterval(interval);
                                     $("#" + id.toString() + " #prog_in").attr("class", "progress-bar progress-bar-success");
                                     return;

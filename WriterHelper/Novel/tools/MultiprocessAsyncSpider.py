@@ -13,6 +13,7 @@ from bs4 import BeautifulSoup
 import re,requests,logging,time,asyncio,aiohttp
 from tqdm import tqdm
 from multiprocessing import Process,Queue
+# from split_words import lazyproperty
 # from SpiderUtils import MainLoggerConfig
 
 sys.setrecursionlimit(1000000)#防止迭代超过上限报错
@@ -29,8 +30,7 @@ class load_biquge(object):
         self.q = Queue()
         self.total = None
         self.invalid_q = Queue()
-        self.path = self.get_path()
-
+        self.path=self.get_path()
 
     def get_path(self):
         '''
@@ -103,14 +103,17 @@ class load_biquge(object):
                 else:
                     self.invalid_q.put(url)
 
-    def getProgressStatus(self):
+    def getProgressLeft(self):
         left = self.q.qsize() + self.invalid_q.qsize()
         return left
 
-    def ShellProgress(self,ins):
+    def getProgressPercent(self):
+        return int((1-self.getProgressLeft()/self.total)*100)
+
+    def ShellProgress(self):
         pbar = tqdm(total=self.total)
         while True:
-            tmp = self.getProgressStatus()
+            tmp = self.getProgressLeft()
             if not tmp:
                 pbar.update(self.total-pbar.n)
                 break
@@ -118,7 +121,6 @@ class load_biquge(object):
                 update =0
             else:
                 update=self.total-tmp-pbar.n
-            ins.append(int((self.total-tmp)/self.total*100))
             pbar.update(update)
             time.sleep(1)
         pbar.close()
