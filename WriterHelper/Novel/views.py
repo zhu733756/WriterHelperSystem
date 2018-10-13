@@ -2,7 +2,7 @@ import os
 from django.http import JsonResponse
 from django.shortcuts import render
 from .tools import SearchTools
-from .tools.Crawler import crawler_push,crawler
+from .tools.Crawler import crawler_push,getOutQueueEle
 from .tools.BookListSpider import BookInfoSpider
 
 def index(request):
@@ -90,19 +90,22 @@ def search_crawl_status(request):
     global total
     global status
     url=request.GET.get("url")
-    print(url)
-    req= crawler.getOutQueueEle()
+    req= getOutQueueEle()
     print(req)
     print("------")
+    if status%100:
+        status=0
     if req is not None:
-        if isinstance(req,int):
-            total = req
-        else:
-            status = 100
+        href,param=req.split(":")[:]
+        if url.split("/")[-2] == href:
+            if param.isdigit():
+                total =int(req)
+            else:
+                status = 100
     if total:
-        status += int(20 * 100 / total)
-    if status >100:
-        status=100
+        status += int(10 * 100 /(1.5* total))
+        if status >100:
+            status -=int(10 * 100 /(1.5* total))
     return JsonResponse(status,safe=False)
 
 

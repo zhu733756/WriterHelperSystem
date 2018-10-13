@@ -248,13 +248,12 @@
                             data: {"url": url},
                             success: function (s) {
                                 console.log(s);
+                                $("#" + id.toString() + " #prog_in").width(s + "%");
+                                $("#" + id.toString() + " #prog_in").html(author_info + ": " + s + "%" + "loading...");
                                 if (s === 100) {
                                     clearInterval(interval);
                                     $("#" + id.toString() + " #prog_in").attr("class", "progress-bar progress-bar-success");
-                                    return;
                                 }
-                                $("#" + id.toString() + " #prog_in").width(s + "%");
-                                $("#" + id.toString() + " #prog_in").html(author_info + ": " + s + "%" + "loading...");
                             }
                         })
                 }, 2000)

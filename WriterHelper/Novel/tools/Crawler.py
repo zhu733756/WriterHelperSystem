@@ -49,7 +49,7 @@ class Crawler(object):
         ins=load_biquge(req)
         ins.put_page_urls()
         print("url(%s)-total:"%req,ins.total)
-        self.out_q.put_nowait(ins.total)
+        self.out_q.put(req.split("/")[-2]+":"+str(ins.total))
         p1 = Process(name="CrawlProcess-1", target=ins.get_queue, args=())
         p2 = Process(name="CrawlProcess-2", target=ins.get_queue, args=())
         p3 = Process(name="ProgressBarProcess", target=ins.ShellProgress, args=())
@@ -57,7 +57,6 @@ class Crawler(object):
             p.start()
         for p in (p1, p2, p3):
             p.join()
-
 
     def filter(self, items):
         for item in items:
@@ -69,11 +68,6 @@ class Crawler(object):
         for item in items:
             self.q.put(item)
 
-    def getOutQueueEle(self):
-        if not self.out_q.qsize():
-            return None
-        return self.out_q.get_nowait()
-
     def crawl(self):
         while 1:
             print("Wait for req...")
@@ -84,16 +78,23 @@ class Crawler(object):
             req=req.decode() if isinstance(req,bytes) else req
             print("Read a req({})".format(req))
             self.download(req)
-            self.out_q.put_nowait("finished")
+            self.out_q.put(req.split("/")[-2]+":finished")
 
 input_q=RedisQueue("Novels:Queue")
-out_q=Queue()
+out_q=RedisQueue("Novels:OutQueue")
 crawler=Crawler(input_q,out_q)#Singleton
 
 def crawler_push(items):
     items = list(crawler.filter(items))
     crawler.push(items)
     return items
+
+def getOutQueueEle():
+    if not crawler.out_q.qsize():
+        return None
+    req= crawler.out_q.get_nowait()
+    req = req.decode() if isinstance(req, bytes) else req
+    return req
 
 if "__main__"==__name__:
 

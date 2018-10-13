@@ -113,6 +113,16 @@ print("----")
 
 print({b"https://www.biquge5200.cc/7_7222/":123})
 
-urls=[b"https://www.biquge5200.cc/7_7222/"]
+urls=["https://www.biquge5200.cc/7_7222/"]
 res={url:"success" for url in urls}
 print(res)
+
+import re
+title="*.?? wo"
+title = re.compile(r"[*.?？\s<>]+").sub("", title)
+print(title)
+
+print(bytes("https://www.biquge5200.cc/7_7222/",encoding="utf-8").decode())
+print(isinstance(b'',bytes))
+
+print("https://www.biquge5200.cc/62_62835/".split("/")[-2])
