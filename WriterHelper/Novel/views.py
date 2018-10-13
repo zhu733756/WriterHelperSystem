@@ -1,11 +1,9 @@
 import os
 from django.http import JsonResponse
 from django.shortcuts import render
-from .tools import SearchTools, MultiprocessAsyncSpider
-from .tools.Crawler import crawler
+from .tools import SearchTools
+from .tools.Crawler import crawler_push,crawler
 from .tools.BookListSpider import BookInfoSpider
-from multiprocessing import Manager
-import subprocess
 
 def index(request):
     return render(request, "menu.html")
@@ -75,16 +73,10 @@ def search_booklist(request):
         return JsonResponse(search_spider.split_search_key(*args))
 
 def search_duplicate_url(request):
-
     reqs = request.POST.getlist("array[]")
-    print(reqs)
-    reqs=Manager().list(reqs)
-    valid_urls=crawler.filter(reqs)#去重
-    CreateProcess()
+    reqs=list(set(reqs))
+    valid_urls=crawler_push(reqs)
     invalid_urls = [url for url in reqs if url not in valid_urls]
-    print(list(valid_urls))
-    print(invalid_urls)
-    [crawler.push(url) for url in valid_urls ]
     res={url:"success" for url in valid_urls}
     if invalid_urls:
         res.update({url: "fail" for url in invalid_urls})
@@ -92,21 +84,26 @@ def search_duplicate_url(request):
     else:
         return JsonResponse(res)
 
-status=0
+total,status=0,0
 
 def search_crawl_status(request):
+    global total
     global status
-    url=request.POST.get("url")
-    # total=crawler.totalProgress[url]
+    url=request.GET.get("url")
     print(url)
-    if crawler.check(url):
-        # for i in range(int(total*1.5)+1):
-        #     status=int(i*100/total)
-        left_percent = crawler.totalProgress[url]
-        status=left_percent
-    else:
+    req= crawler.getOutQueueEle()
+    print(req)
+    print("------")
+    if req is not None:
+        if isinstance(req,int):
+            total = req
+        else:
+            status = 100
+    if total:
+        status += int(20 * 100 / total)
+    if status >100:
         status=100
-    return JsonResponse({url:status})
+    return JsonResponse(status,safe=False)
 
 
 

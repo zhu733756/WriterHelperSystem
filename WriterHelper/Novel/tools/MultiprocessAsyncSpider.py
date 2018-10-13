@@ -37,9 +37,10 @@ class load_biquge(object):
         获取存储目录
         :return:
         '''
-        BaseDir=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        BaseDir=os.path.dirname(os.path.dirname
+                                (os.path.dirname(os.path.dirname(__file__))))
         first_page=self.html_parse(self.mother_url)
-        path=os.path.join(BaseDir,"SentenceMaking\\NovelsRawData\\{}\\{}". \
+        path=os.path.join(BaseDir,r"SentenceMaking\NovelsRawData\{}\{}". \
             format(first_page.find("p").string.strip().split("：")[-1],
                    first_page.find("div",{"id":"info"}).find("h1").string))
         if not os.path.exists(path):
@@ -95,7 +96,8 @@ class load_biquge(object):
                     except:
                         result=await response.text(encoding='GB18030')
                     page_content = BeautifulSoup(result, "html.parser")
-                    title = re.compile(r"\*|\.|\?|？").sub("", page_content.find("h1").string).strip()
+                    title = re.compile(r"[*.?？\s<>:：【】]+")\
+                        .sub("", page_content.find("h1").string).strip()
                     text = page_content.find("div", id="content").stripped_strings
                     with open(os.path.join(self.path, title) + '.txt',
                               "w+", encoding="utf-8") as f:
@@ -125,7 +127,7 @@ class load_biquge(object):
             time.sleep(1)
         pbar.close()
 
-    def get_queue(self):
+    def get_queue(self,):
         '''
         获取队列，启动协程异步程序，失效队列重爬
         :return:
