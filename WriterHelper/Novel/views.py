@@ -93,13 +93,13 @@ def search_crawl_status(request):
     req= getOutQueueEle()
     print(req)
     print("------")
-    if status%100:
+    if not status % 100:
         status=0
     if req is not None:
-        href,param=req.split(":")[:]
-        if url.split("/")[-2] == href:
+        href,param=req.split("@")[:]
+        if url == href:
             if param.isdigit():
-                total =int(req)
+                total =int(param)
             else:
                 status = 100
     if total:
@@ -107,6 +107,8 @@ def search_crawl_status(request):
         if status >100:
             status -=int(10 * 100 /(1.5* total))
     return JsonResponse(status,safe=False)
+
+
 
 
 

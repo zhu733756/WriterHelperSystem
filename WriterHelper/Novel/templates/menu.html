@@ -214,22 +214,31 @@
             },
             success: function (data) {
                 console.log(data);
+                var urls=arr_href;
+                var infos=arr_author;
                 $.each(data, function (url,status) {
                     $("#prog_showQueue").show();
                     if (status === "success") {
-                        for (var ind = 0; ind <= arr_href.length - 1; ind++) {
-                            if (url === arr_href[ind]) {
-                                var author_info = arr_author[ind];
-                                var id = "progBar_" + author_info;
-                                $("#prog_showQueue").append('<div class="col-sm-8 offset-sm-2" id=' + id + '>' +
-                                    '<div id="prog_out" class="progress progress-stripped active">' +
-                                    '<div id="prog_in" class="progress-bar progress-bar-success"></div>' +
-                                    '</div></div>');
-                                progressBar(id, author_info, url);
-                           }
+                        while (urls.length+infos.length){
+                            var ind=urls.indexOf(url);
+                            if ((infos[ind] === undefined)|| ind <0)
+                                break;
+                            var author_info = infos[ind];
+                            var id = "progBar_" + author_info;
+                            $("#prog_showQueue").append('<div class="col-sm-8 offset-sm-2" id=' + id + '>' +
+                                            '<div id="prog_out" class="progress progress-stripped active">' +
+                                            '<div id="prog_in" class="progress-bar progress-bar-success"></div>' +
+                                            '</div></div>');
+                            $("#" + id.toString() + " #prog_in").width( "0%");
+                            $("#" + id.toString() + " #prog_in").html(author_info + ": 0%-loading...");
+                            progressBar(id, author_info, url);
+                            urls.splice(ind,1);
+                            infos.splice(ind,1);
+                            console.log(urls);
+                            console.log(infos);
                         }
                     }
-                    else {
+                    else{
                         console.log(url + "is duplicate url!");
                     }
                 });
@@ -249,7 +258,7 @@
                             success: function (s) {
                                 console.log(s);
                                 $("#" + id.toString() + " #prog_in").width(s + "%");
-                                $("#" + id.toString() + " #prog_in").html(author_info + ": " + s + "%" + "loading...");
+                                $("#" + id.toString() + " #prog_in").html(author_info + ": " + s + "%-loading...");
                                 if (s === 100) {
                                     clearInterval(interval);
                                     $("#" + id.toString() + " #prog_in").attr("class", "progress-bar progress-bar-success");

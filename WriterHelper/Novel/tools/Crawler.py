@@ -6,6 +6,8 @@ from MultiprocessAsyncSpider import load_biquge
 from split_words import generate_key
 from multiprocessing import Process,Manager,Queue,freeze_support
 from redis import StrictRedis,ConnectionPool
+from scrapy_redis import spiders
+import time
 
 class RedisQueue(object):
 
@@ -20,10 +22,6 @@ class RedisQueue(object):
         :return:
         '''
         return self.__db.llen(self.key)
-
-    def contains(self,item):
-
-        return item in self.__db.lrange(self.key,0,-1)
 
     def put(self, item):
         self.__db.rpush(self.key, item)  # 添加新元素到队列最右方
@@ -42,14 +40,14 @@ class Crawler(object):
 
     def __init__(self,input_q,out_q):
         self.q = input_q
-        self._seen=[]
+        self._seen=set()
         self.out_q=out_q
 
     def download(self,req):
         ins=load_biquge(req)
         ins.put_page_urls()
         print("url(%s)-total:"%req,ins.total)
-        self.out_q.put(req.split("/")[-2]+":"+str(ins.total))
+        self.out_q.put(req+"@"+str(ins.total))
         p1 = Process(name="CrawlProcess-1", target=ins.get_queue, args=())
         p2 = Process(name="CrawlProcess-2", target=ins.get_queue, args=())
         p3 = Process(name="ProgressBarProcess", target=ins.ShellProgress, args=())
@@ -57,36 +55,46 @@ class Crawler(object):
             p.start()
         for p in (p1, p2, p3):
             p.join()
+        self.out_q.put(req + "@finished")
 
     def filter(self, items):
         for item in items:
             if item not in self._seen:
                 yield item
-                self._seen.append(item)
+                self._seen.add(item)
 
     def push(self, items):
         for item in items:
+            print("put in queue:",item)
             self.q.put(item)
+        else:
+            print(self.q.qsize())
+
+    def next_requests(self):
+        found=0
+        while found < self.q.qsize():
+            req = self.q.get_nowait()
+            if not req:
+                break
+            yield req
+            found += 1
 
     def crawl(self):
         while 1:
             print("Wait for req...")
-            if not self.q.qsize():
-                req=self.q.get()[1]
-            else:
-                req=self.q.get_nowait()
-            req=req.decode() if isinstance(req,bytes) else req
-            print("Read a req({})".format(req))
-            self.download(req)
-            self.out_q.put(req.split("/")[-2]+":finished")
+            for req in self.next_requests():
+                print("Read a req({})".format(req))
+                self.download(req)
+            time.sleep(0.5)
 
-input_q=RedisQueue("Novels:Queue")
-out_q=RedisQueue("Novels:OutQueue")
+input_q=Queue()
+out_q=Queue()
 crawler=Crawler(input_q,out_q)#Singleton
 
 def crawler_push(items):
     items = list(crawler.filter(items))
     crawler.push(items)
+    print(crawler.q.qsize())
     return items
 
 def getOutQueueEle():
@@ -98,8 +106,9 @@ def getOutQueueEle():
 
 if "__main__"==__name__:
 
+    items=["https://www.biquge5200.cc/0_46/","https://www.biquge5200.cc/7_7222/"]
+    crawler_push(items)
     crawler.crawl()
-
 
 
 
