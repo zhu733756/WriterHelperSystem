@@ -43,3 +43,6 @@ python manage.py runserver
 ```
 python crawler.py
 ```
+
+## 说明：
+#### 本项目用于本人学习，小说乃是采集源于网络免费小说资源，禁止任何商业用途！
