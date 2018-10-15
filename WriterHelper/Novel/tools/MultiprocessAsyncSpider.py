@@ -74,7 +74,7 @@ class load_biquge(object):
         '''
         mode_page=self.html_parse(self.mother_url)
         ddList = mode_page.find_all("dd")
-        for dd in ddList[:100]:
+        for dd in ddList:
             self.q.put(dd.find("a").get("href"))
         self.total=self.q.qsize()
         print("Total queue(url:%s):"%self.mother_url,self.total)
