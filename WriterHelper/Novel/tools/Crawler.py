@@ -85,7 +85,6 @@ class Crawler(object):
             for req in self.next_requests():
                 print("Read a req({})".format(req))
                 self.download(req)
-            time.sleep(0.5)
 
 input_q=Queue()
 out_q=Queue()
