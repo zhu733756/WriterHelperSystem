@@ -106,25 +106,31 @@ class load_biquge(object):
                     self.invalid_q.put(url)
 
     def getProgressLeft(self):
-        left = self.q.qsize() + self.invalid_q.qsize()
-        return left
+        return self.q.qsize() + self.invalid_q.qsize()
 
     def getProgressPercent(self):
         return int((1-self.getProgressLeft()/self.total)*100)
 
-    def ShellProgress(self):
+    def ShellProgress(self,TimeOutNum=5):
         pbar = tqdm(total=self.total)
-        while True:
+        same_update=0
+        found=0
+        while 1:
             tmp = self.getProgressLeft()
-            if not tmp:
+            if not tmp or found>=TimeOutNum:
                 pbar.update(self.total-pbar.n)
                 break
             if self.total-tmp-pbar.n <0:
                 update =0
             else:
                 update=self.total-tmp-pbar.n
+            if tmp < 10 and update == same_update:
+                found += 1
+            else:
+                found=0
+            same_update=update
             pbar.update(update)
-            time.sleep(1)
+            time.sleep(2)
         pbar.close()
 
     def get_queue(self,):
@@ -132,6 +138,7 @@ class load_biquge(object):
         获取队列，启动协程异步程序，失效队列重爬
         :return:
         '''
+        found = 0
         while 1:
             count = 0
             tasks = []
@@ -169,14 +176,14 @@ class load_biquge(object):
 if __name__ =="__main__":
 
     m=load_biquge('https://www.biquge5200.cc/0_46/')
-    m.put_page_urls()
-    p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
-    p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
-    p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
-    for p in (p1,p2, p3):
-        p.start()
-    for p in (p1,p2, p3):
-        p.join()
+    # m.put_page_urls()
+    # p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
+    # p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
+    # p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
+    # for p in (p1,p2, p3):
+    #     p.start()
+    # for p in (p1,p2, p3):
+    #     p.join()
 
 
 
