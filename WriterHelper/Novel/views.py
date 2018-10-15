@@ -107,13 +107,14 @@ def search_crawl_status(request):
                 elif param=="finished":#信号爬取完成
                     return JsonResponse(100, safe=False)
         if url in d:#爬取过程中
+            print("d:",d)
             total=d[url]["total"]
             if "status" not in d[url]:
                 d[url]["status"]=0
             status=d[url]["status"]#上次保存的状态值
-            status=status+int(10 * 100 /(1.8* total))
+            status=status+int(10 * 100 /(1.5* total))
             if status>=100:
-                status=status-int(10 * 100 /(1.8* total))
+                status=status-int(10 * 100 /(1.5* total))
             d[url]["status"]=status
             return JsonResponse(status,safe=False)
         return JsonResponse(0, safe=False)#程序间隙响应间
