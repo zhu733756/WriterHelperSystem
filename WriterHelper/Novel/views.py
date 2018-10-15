@@ -2,7 +2,7 @@ import os
 from django.http import JsonResponse
 from django.shortcuts import render
 from .tools import SearchTools
-from .tools.Crawler import crawler_push,getOutQueueEle
+from .tools.Crawler import crawler_push,getOutQueueEle,check_enqueue,check_outqueue
 from .tools.BookListSpider import BookInfoSpider
 
 def index(request):
@@ -84,29 +84,40 @@ def search_duplicate_url(request):
     else:
         return JsonResponse(res)
 
-total,status=0,0
+d={}
 
 def search_crawl_status(request):
-    global total
-    global status
+    global d
     url=request.GET.get("url")
-    req= getOutQueueEle()
-    print(req)
-    print("------")
-    if not status % 100:
-        status=0
-    if req is not None:
-        href,param=req.split("@")[:]
-        if url == href:
-            if param.isdigit():
-                total =int(param)
-            else:
-                status = 100
-    if total:
-        status += int(10 * 100 /(1.5* total))
-        if status >100:
-            status -=int(10 * 100 /(1.5* total))
-    return JsonResponse(status,safe=False)
+    print(url)
+    # if not check_enqueue(url) and not check_outqueue(url):
+    #     return JsonResponse(100,safe=False)
+    if check_enqueue(url):
+        return JsonResponse(0, safe=False)
+    else:
+        if check_outqueue(url):
+            print("------")
+            req= getOutQueueEle()
+            print(req)
+            print("------")
+            if req is not None:
+                _,param=req.split("@")[:]
+                if param.isdigit():#给定total，保存下来
+                    d.setdefault(url,{}).setdefault("total",int(param))
+                elif param=="finished":#信号爬取完成
+                    return JsonResponse(100, safe=False)
+        if url in d:#爬取过程中
+            total=d[url]["total"]
+            if "status" not in d[url]:
+                d[url]["status"]=0
+            status=d[url]["status"]#上次保存的状态值
+            status=status+int(10 * 100 /(1.8* total))
+            if status>=100:
+                status=status-int(10 * 100 /(1.8* total))
+            d[url]["status"]=status
+            return JsonResponse(status,safe=False)
+        return JsonResponse(0, safe=False)#程序间隙响应间
+
 
 
 
