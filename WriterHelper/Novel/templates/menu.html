@@ -93,8 +93,8 @@
 </div>
 </body>
 <script type="text/javascript">
+//    搜索本地书籍信息
     $('#search_dir').click(search_exist("#search_dir"));
-
     function search_exist(selector) {
         $(selector).click(function () {
             $.ajax({
@@ -102,11 +102,11 @@
                     type: "POST",
                     data: $("#dir").serialize(),
                     success: function (info) {
-                        $("#dir_show").html("");
-                        $("#thead").html("");
-                        $("#AddBooks").html("");
-                        $("#idioms").html("");
-                        $("#novels").html("");
+                        $("#dir_show").html("").show();
+                        $("#thead").hide();
+                        $("#AddBooks").hide();
+                        $("#idioms").hide();
+                        $("#novels").hide();
                         if (info.constructor === String) {
                             $("#dir_show").html(info);
                         }
@@ -132,17 +132,18 @@
     }
 </script>
 <script type="text/javascript">
+//    搜索在线书籍信息，并用进度条跟踪
     $("#crawlspider").click(function () {
         $.ajax({
             url: "{% url 'search_booklist' %}",
             type: "POST",
             data: $("#book").serialize(),
             success: function (book_info) {
-                $("#dir_show").html("");
-                $("#idioms").html("");
-                $("#novels").html("");
-                $("#bookinfo").html("");
-                $("#thead").html("");
+                $("#dir_show").hide();
+                $("#idioms").hide();
+                $("#novels").hide();
+                $("#bookinfo").html("").show();
+                $("#thead").html("").show();
                 $("#bookinfo").append($('<div id="booklist"></div>'));
                 $("<br><p style='font-size: 1.5rem;'><b>匹配结果</b></p><hr>").insertBefore("#booklist");
                 $("#AddtoQueue").show();
@@ -179,6 +180,7 @@
     })
 </script>
 <script type="text/javascript">
+    //  购物篮
     function addToTable(btn) {
         var author = $(btn).parent().siblings().eq(0).text().substring(1);
         var href = $(btn).siblings().eq(0).attr("href");
@@ -187,13 +189,24 @@
             + "<td>" + href + "</td>"
             + "<td>" + "<input type='button' onclick='deletElement(this)' value='-'/>"
             + "</td></tr>");
+        $("#AddBooks").show();
         $("#AddBooks").append(html);
     }
 
+    //  删除购物篮元素
     function deletElement(btn) {
+        var authorInfo=$(btn).parent().siblings().eq(0).text();
+        console.log(authorInfo);
+        var sel="#progBar_"+authorInfo.toString();
         $(btn).parent().parent().remove();
+        console.log(sel);
+        if($(sel)) {
+            $(sel).remove();
+            $(sel).nextsibling("br").remove();
+        }
     }
 
+    // 提交队列
     $("#crawler").click(function () {
         var items = $("#AddBooks td");
         var arr_author = new Array();
@@ -214,38 +227,32 @@
             },
             success: function (data) {
                 console.log(data);
-                var urls=new Array();
-                var infos=new Array();
                 $.each(data, function (url,status) {
+                    $("#prog_showQueue").show();
+                    console.log("-----");
                     if (status === "success") {
-                        urls.push(url);
-                        infos.push(arr_author[arr_href.indexOf(url)]);
-                        console.log("urls:",urls);
-                        console.log("infos:",infos);
+                        var ind=arr_href.indexOf(url);
+                        if (ind >= 0){
+                            var author_info = arr_author[ind];
+                            var id = "progBar_" + author_info;
+                            $("#prog_showQueue").append('<div class="col-sm-8 offset-sm-2" id=' + id + '>' +
+                                                        '<div id="prog_out" class="progress progress-stripped active" >' +
+                                                        '<div id="prog_in" class="progress-bar progress-bar-success" style="height:20px"></div>' +
+                                                        '</div></div>'+'<br>'
+                            );
+                            progressBar(id, author_info, url);
+                        }
                     }
                     else{
-                        console.log(url + "is duplicate url!");
+                        console.log(url + " is duplicate url!");
                     }
                 });
-                console.log(urls);
-                $("#prog_showQueue").show();
-                for (var ind=0;ind <=urls.length-1;ind++) {
-                    console.log("-----");
-                    var url=urls[ind];
-                    var author_info = infos[ind];
-                    var id = "progBar_" + author_info;
-                    $("#prog_showQueue").append('<br>'+'<div class="col-sm-8 offset-sm-2" id=' + id + '>' +
-                                            '<div id="prog_out" class="progress progress-stripped active" >' +
-                                            '<div id="prog_in" class="progress-bar progress-bar-success" style="height:20px"></div>' +
-                                            '</div></div>');
-                    progressBar(id, author_info, url);
-                }
             }
         });
     });
 
+    //进度条
     function progressBar(id,author_info,url) {
-
         var interval=setInterval(
                 function () {
                     $.ajax(
@@ -260,6 +267,7 @@
                                 if (s === 100) {
                                     clearInterval(interval);
                                     $("#" + id.toString() + " #prog_in").attr("class", "progress-bar progress-bar-success");
+                                    $("#" + id.toString() + " #prog_in").html(author_info + ": 100%-completed...");
                                 }
                             }
                         })
@@ -268,17 +276,19 @@
 
 </script>
 <script type="text/javascript">
+//    词条表单提交
     $("#submit").click(function () {
         $.ajax({
             url: "{% url 'search_form' %}",
             type: "POST",
             data: $("#post-form").serialize(),
             success: function (data) {
-                $("#dir_show").html("");
-                $("#thead").html("");
-                $("#AddBooks").html("");
-                $("#idioms").html("");
-                $("#novels").html("");
+                $("#dir_show").hide();
+                $("#thead").hide();
+                $("#AddBooks").hide();
+                $("#AddtoQueue").hide();
+                $("#idioms").html("").show();
+                $("#novels").html("").show();
                 $("br").remove();
                 var idioms = data["idioms"];
                 var novels = data["novels"];
@@ -338,6 +348,7 @@
     })
 </script>
 <script>
+    <!--触发复制按钮-->
     function toggle(m, n) {
         var btn = $("<button class='btn btn-primary'>复制</button>").attr("data-clipboard-target", "." + m.toString());
         return btn.on("click", function () {

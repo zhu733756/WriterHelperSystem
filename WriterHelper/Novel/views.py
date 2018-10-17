@@ -1,4 +1,4 @@
-import os
+import os,random
 from django.http import JsonResponse
 from django.shortcuts import render
 from .tools import SearchTools
@@ -6,9 +6,19 @@ from .tools.Crawler import crawler_push,getOutQueueEle,check_enqueue,check_outqu
 from .tools.BookListSpider import BookInfoSpider
 
 def index(request):
+    '''
+    index页面
+    :param request:
+    :return:
+    '''
     return render(request, "menu.html")
 
 def search_dir(request):
+    '''
+    搜索本地已经建立索引的词库
+    :param request:
+    :return:
+    '''
     idioms_dir = SearchTools.SearchRes.find_searchKey("idiom")
     verb_dir = SearchTools.SearchRes.find_searchKey("verb")
     idioms_dir.extend(verb_dir)
@@ -20,6 +30,11 @@ def search_dir(request):
     return JsonResponse(author_nov_list)
 
 def search(request):
+    '''
+    根据关键词搜索书籍信息
+    :param request:
+    :return:
+    '''
     req=request.POST.get("author_s")
     idioms_path = SearchTools.SearchRes.find_searchKey("idiom")
     novels_path = SearchTools.SearchRes.find_searchKey("verb")
@@ -41,6 +56,11 @@ def search(request):
         return JsonResponse("没有检测到可用书籍信息！",safe=False)
 
 def search_form(request):
+    '''
+    搜索匹配词条的结果
+    :param request:
+    :return:
+    '''
     res={}
     res.setdefault("words", request.POST["words"])
     idioms = SearchTools.SearchRes(res).search_idioms()
@@ -52,6 +72,11 @@ def search_form(request):
     return JsonResponse(data)
 
 def search_booklist(request):
+    '''
+    获取在线书籍信息列表
+    :param request:
+    :return:
+    '''
     book_req=request.POST.get("search_key").strip()
     book_req = book_req.replace("；", ";").replace("：", ":")
     search_spider = BookInfoSpider()
@@ -73,6 +98,11 @@ def search_booklist(request):
         return JsonResponse(search_spider.split_search_key(*args))
 
 def search_duplicate_url(request):
+    '''
+    查询是否有重复提交的url
+    :param request:
+    :return:
+    '''
     reqs = request.POST.getlist("array[]")
     reqs=list(set(reqs))
     valid_urls=crawler_push(reqs)
@@ -87,6 +117,11 @@ def search_duplicate_url(request):
 d={}
 
 def search_crawl_status(request):
+    '''
+    搜索爬取状态，用于构造爬取进度条
+    :param request:
+    :return:
+    '''
     global d
     url=request.GET.get("url")
     print(url)
@@ -101,21 +136,22 @@ def search_crawl_status(request):
             print(req)
             print("------")
             if req is not None:
-                _,param=req.split("@")[:]
-                if param.isdigit():#给定total，保存下来
-                    d.setdefault(url,{}).setdefault("total",int(param))
-                elif param=="finished":#信号爬取完成
-                    return JsonResponse(100, safe=False)
+                href,param=req.split("@")[:]
+                if href==url:
+                    if param.isdigit():#给定total，保存下来
+                        d.setdefault(url,{}).setdefault("total",int(param))
+                    elif param=="finished":#信号爬取完成
+                        return JsonResponse(100, safe=False)
         if url in d:#爬取过程中
             print("d:",d)
             total=d[url]["total"]
             if "status" not in d[url]:
                 d[url]["status"]=0
             status=d[url]["status"]#上次保存的状态值
-            status=status+int(10 * 100 /(1.5* total))
-            if status>=100:
-                status=status-int(10 * 100 /(1.5* total))
-            d[url]["status"]=status
+            addedNum=random.choice(range(12,16))*100/total
+            if status+addedNum<100:
+                status=round(status+addedNum,1)
+                d[url]["status"]=status
             return JsonResponse(status,safe=False)
         return JsonResponse(0, safe=False)#程序间隙响应间
 

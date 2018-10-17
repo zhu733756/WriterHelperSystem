@@ -45,10 +45,17 @@ class load_biquge(object):
                    first_page.find("div",{"id":"info"}).find("h1").string))
         if not os.path.exists(path):
             os.makedirs(path)
+        else:
+            self.check_downloaded(path)
         return path
 
-    def check_downloaded(self):
-        pass
+    def check_downloaded(self,path):
+        '''
+        获取当前目录已经爬取的数目
+        :param path:
+        :return:
+        '''
+        self.downloadedNum=len([file for file in os.listdir(path)])
 
     def html_parse(self,url):
         '''
@@ -74,6 +81,8 @@ class load_biquge(object):
         '''
         mode_page=self.html_parse(self.mother_url)
         ddList = mode_page.find_all("dd")
+        if hasattr(self,"downloadedNum"):
+            ddList=ddList[self.downloadedNum:]
         for dd in ddList:
             self.q.put(dd.find("a").get("href"))
         self.total=self.q.qsize()
@@ -96,12 +105,13 @@ class load_biquge(object):
                     except:
                         result=await response.text(encoding='GB18030')
                     page_content = BeautifulSoup(result, "html.parser")
-                    title = re.compile(r"[*.?？\s<>:：【】]+")\
+                    title = re.compile(r"[*.?？<>:：【】]+")\
                         .sub("", page_content.find("h1").string).strip()
+                    title=re.compile("\s+").sub(" ",title)
                     text = page_content.find("div", id="content").stripped_strings
                     with open(os.path.join(self.path, title) + '.txt',
                               "w+", encoding="utf-8") as f:
-                        f.write("\n".join("".join(text)))
+                        f.write("\n".join(text))
                 else:
                     self.invalid_q.put(url)
 
@@ -176,14 +186,15 @@ class load_biquge(object):
 if __name__ =="__main__":
 
     m=load_biquge('https://www.biquge5200.cc/0_46/')
-    # m.put_page_urls()
-    # p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
-    # p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
-    # p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
-    # for p in (p1,p2, p3):
-    #     p.start()
-    # for p in (p1,p2, p3):
-    #     p.join()
+    m.put_page_urls()
+    p1 = Process(name="CrawlProcess-1", target=m.get_queue, args=())
+    p2 = Process(name="CrawlProcess-2", target=m.get_queue, args=())
+    p3 = Process(name="ProgressProcess", target=m.ShellProgress, args=())
+    for p in (p1,p2, p3):
+        p.start()
+    for p in (p1,p2, p3):
+        p.join()
+
 
 
 
