@@ -4,7 +4,7 @@
 ## 功能介绍：
 #### 本项目是一个Django和异步爬虫相结合的作家帮助系统，支持的功能如下：
 #### 1、本地库目查询（可搜索作者名或者小说名，也可以直接点击搜索）
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/1.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/1.png)
 #### 2、在线添加小说（支持单个或多个arg或者kwargs格式添加多个关键词）
 ![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/2.png)
 #### 2.1 点击“+”获取分类：
