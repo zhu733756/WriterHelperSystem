@@ -15,7 +15,7 @@
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/5.png)
 #### 3、搜索索引分词：
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/6.png)
-#### 4、手动分词：
+#### 4、手动分词（tools目录下运行SplitWords.py）：
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/7.png)
 
 ## 依赖安装
