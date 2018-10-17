@@ -6,15 +6,17 @@
 #### 1、本地库目查询（可搜索作者名或者小说名，也可以直接点击搜索）
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/1.png)
 #### 2、在线添加小说（支持单个或多个arg或者kwargs格式添加多个关键词）
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/2.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/2.png)
 #### 2.1 点击“+”获取分类：
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/3.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/3.png)
 #### 2.2 添加至队列中：
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/4.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/4.png)
 #### 2.3 后台进度条：
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/5.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/5.png)
 #### 3、搜索索引分词：
-![python](https://github.com/zhu733756/WriterHelperSystem/tree/master/Src/6.png)
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/6.png)
+#### 4、手动分词：
+![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/Src/7.png)
 
 ## 依赖安装
 #### 所需python第三方包合辑：
