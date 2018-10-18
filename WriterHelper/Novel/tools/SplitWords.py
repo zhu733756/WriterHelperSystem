@@ -99,7 +99,7 @@ class SentenceMaking(object):
         :param path:
         :return:
         '''
-        return filter(lambda x: x,
+        return filter(lambda x: x.strip(),
                          map(str.strip, open(path,\
                         "r", encoding="utf-8").readlines()))
 
@@ -110,7 +110,7 @@ class SentenceMaking(object):
         :return:
         '''
         for sentence in self.get_strings(path):
-            if sentence[0] in ('“', '”', '"', '"') or \
+            if sentence[0] in ('“', '”', '"', '"',) or \
                             sentence[-1] in ('“', '”', '"', '"'):
                 continue
             for tag in jieba.cut(sentence, cut_all=False):
@@ -160,7 +160,7 @@ class SentenceMaking(object):
         保存为json数据
         :return:
         '''
-        path=BaseDir+"\\SenteceMaking\\Sentencekey\\%s"\
+        path=BaseDir+"\\SentenceMaking\\Sentencekey\\%s"\
                      %("-".join(self.get_auther_and_title()))
         if not os.path.exists(path):
             os.makedirs(path)
@@ -176,8 +176,12 @@ def generate_key(mode,key):
     :param key: idiom or verb
     :return:
     '''
-    instance = SentenceMaking(mode,key)
+    instance = SentenceMaking(mode, key)
     author,title=instance.get_auther_and_title()
+    filepath=BaseDir+"/SentenceMaking/Sentencekey/{}-{}".format(author,title)
+    if os.path.exists(filepath) and  key+".json" in os.listdir(filepath):
+        print( "{}-{}的{}分词已经完成，自动跳过....".format(author,title,key))
+        return False
     total = instance.get_total()
     func_name="make_"+key+"s"
     if hasattr(instance,func_name):
@@ -196,8 +200,9 @@ if __name__ == "__main__":
        for n,book in enumerate(os.listdir(os.path.join(split_path,author))):
            print("第{}本:{}".format(str(n+1),book))
            book_path=os.path.join(split_path,"{}\\{}".format(author,book))
+           generate_key(book_path, "verb")
            generate_key(book_path,"idiom")
-           generate_key(book_path,"verb")
+
 
 
 
