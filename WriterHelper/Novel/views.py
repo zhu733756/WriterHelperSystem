@@ -124,17 +124,11 @@ def search_crawl_status(request):
     '''
     global d
     url=request.GET.get("url")
-    print(url)
-    # if not check_enqueue(url) and not check_outqueue(url):
-    #     return JsonResponse(100,safe=False)
     if check_enqueue(url):
         return JsonResponse(0, safe=False)
     else:
         if check_outqueue(url):
-            print("------")
             req= getOutQueueEle()
-            print(req)
-            print("------")
             if req is not None:
                 href,param=req.split("@")[:]
                 if href==url:
@@ -143,7 +137,6 @@ def search_crawl_status(request):
                     elif param=="finished":#信号爬取完成
                         return JsonResponse(100, safe=False)
         if url in d:#爬取过程中
-            print("d:",d)
             total=d[url]["total"]
             if "status" not in d[url]:
                 d[url]["status"]=0

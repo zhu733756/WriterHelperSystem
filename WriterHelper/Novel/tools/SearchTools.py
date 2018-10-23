@@ -44,16 +44,22 @@ class SearchRes(object):
         for path in self.find_searchKey(searchJsonKey):
             novel_info=os.path.split(os.path.dirname(path))[-1]
             with open(path,"r",encoding="utf-8") as f:
-                lines=[line for line in f.read().split("\n") if line]
-                for line in lines:
-                    line=json.loads(line.strip())
-                    chapter=line["chapter"].replace(" ","_")
+                lines=filter(lambda x: x.strip(),f.read().split("\n"))
+                for n,line in enumerate(lines):
+                    try:
+                        line=json.loads(line.strip())
+                        chapter = line["chapter"].replace(" ", "_")
+                    except Exception as e:
+                        print(path)
+                        print(e.args,"\n",n,"\n----")
                     if self._data["words"] in line:
                         info.setdefault(novel_info, {}). \
-                            setdefault(chapter, [])\
+                            setdefault(chapter, []) \
                             .extend(line[self._data["words"]])
             searchLic.append(info)
+
         if searchLic:
+            print(len(searchLic))
             return searchLic
         else:
             return "no such %s in novels!"%searchJsonKey

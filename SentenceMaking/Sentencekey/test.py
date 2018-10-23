@@ -10,10 +10,11 @@ __author__ = 'zhu733756'
 
 import os,json
 
-with open("D:\gitdata\gitdataRes\WriterHelperSystem\SentenceMaking\Sentencekey\失落叶-斩龙\idiom.json","r",encoding="utf8") as f:
-    for n,file in enumerate(f.readlines()):
+with open("D:\gitdata\gitdataRes\WriterHelperSystem\SentenceMaking\Sentencekey\辰东-完美世界\idiom.json","r",encoding="utf8") as f:
+    lines=filter(lambda x: x.strip(),f.read().split("\n"))
+    for n,file in enumerate(lines):
         try:
-            s=json.loads(file).values()
+            s=json.loads(file).keys()
             print(s)
         except:
             print(n)

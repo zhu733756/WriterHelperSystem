@@ -7,7 +7,7 @@
 -------------------------------------------------
 __author__ = 'zhu733756'
 """
-import os,re,jieba,sys
+import os,re,jieba,sys,re
 import jieba.posseg as pseg
 import json
 import pandas as pd
@@ -122,7 +122,8 @@ class SentenceMaking(object):
                 if tag in json.loads(self.idioms):
                     self.split_keywords.setdefault("chapter", \
                                     os.path.split(path)[-1].split(".")[0])
-                    self.split_keywords.setdefault(tag, []).append(sentence)
+                    self.split_keywords.setdefault(tag, []).append(
+                        re.compile(r"[*.?？<>:：【】]+").sub("", sentence).strip())
         if self.split_keywords:
             self.save_json()
 
@@ -151,7 +152,8 @@ class SentenceMaking(object):
                         continue
                     self.split_keywords.setdefault("chapter", \
                                     os.path.split(path)[-1].split(".")[0])
-                    self.split_keywords.setdefault(tag, []).append(sentence)
+                    self.split_keywords.setdefault(tag, []).append(
+                        re.compile(r"[*.?？<>:：【】]+").sub("", sentence).strip())
         if self.split_keywords:
             self.save_json()
 
@@ -166,8 +168,9 @@ class SentenceMaking(object):
             os.makedirs(path)
         with open(os.path.join(path,self.key)+".json",\
                   "a+",encoding="utf-8") as f:
-            f.write(json.dumps(self.split_keywords,
-                               ensure_ascii=False,)+"\n")
+            if isinstance(self.split_keywords,dict):
+                f.write(json.dumps(self.split_keywords,
+                                   ensure_ascii=False,)+"\n")
 
 def generate_key(mode,key):
     '''
