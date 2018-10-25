@@ -19,41 +19,25 @@ def search_dir(request):
     :param request:
     :return:
     '''
-    idioms_dir = SearchTools.SearchRes.find_searchKey("idiom")
-    verb_dir = SearchTools.SearchRes.find_searchKey("verb")
-    idioms_dir.extend(verb_dir)
-    author_nov_list = {}
-    for path in idioms_dir:
-        author_nov_list.setdefault(
-            os.path.split(os.path.dirname(path))[-1], []) \
-            .append(os.path.split(path)[-1].split(".")[0])
-    return JsonResponse(author_nov_list)
-
-def search(request):
-    '''
-    根据关键词搜索书籍信息
-    :param request:
-    :return:
-    '''
-    req=request.POST.get("author_s")
+    req = request.POST.get("author_s")
     idioms_path = SearchTools.SearchRes.find_searchKey("idiom")
     novels_path = SearchTools.SearchRes.find_searchKey("verb")
     idioms_path.extend(novels_path)
-    author_info_path=set([os.path.dirname(path) for path in idioms_path])
-    info_dir={}
+    author_info_path = set([os.path.dirname(path) for path in idioms_path])
+    info_dir = {}
     if req:
         for path in author_info_path:
             author, book = os.path.split(path)[-1].split("-")[:]
-            if  req in path:
-                info_dir.setdefault(author,[]).append(book)
+            if req in path:
+                info_dir.setdefault(author, []).append(book)
     else:
         for path in author_info_path:
             author, book = os.path.split(path)[-1].split("-")[:]
-            info_dir.setdefault(author,[]).append(book)
+            info_dir.setdefault(author, []).append(book)
     if info_dir:
         return JsonResponse(info_dir)
     else:
-        return JsonResponse("没有检测到可用书籍信息！",safe=False)
+        return JsonResponse("没有检测到可用书籍信息！", safe=False)
 
 def search_form(request):
     '''

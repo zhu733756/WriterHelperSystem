@@ -8,7 +8,8 @@
 __author__ = 'zhu733756'
 """
 import pandas as pd
-import os,json
+import os,json,re,sys
+sys.setrecursionlimit(9999999)
 
 class SearchRes(object):
 
@@ -39,44 +40,40 @@ class SearchRes(object):
         else:
             searchJsonKey="idiom"
 
-        searchLic=[]
-        info={}
+        searchLic = []
+        info = {}
         for path in self.find_searchKey(searchJsonKey):
-            novel_info=os.path.split(os.path.dirname(path))[-1]
             with open(path,"r",encoding="utf-8") as f:
-                lines=filter(lambda x: x.strip(),f.read().split("\n"))
-                for n,line in enumerate(lines):
-                    try:
-                        line=json.loads(line.strip())
+                novel_info = os.path.split(os.path.dirname(path))[-1]
+                lines=(line for line in f.read().split("\n") if line)
+                try:
+                    for line in lines:
+                        line = json.loads(line.strip())
                         chapter = line["chapter"].replace(" ", "_")
-                    except Exception as e:
-                        print(path)
-                        print(e.args,"\n",n,"\n----")
-                    if self._data["words"] in line:
-                        info.setdefault(novel_info, {}). \
-                            setdefault(chapter, []) \
-                            .extend(line[self._data["words"]])
-            searchLic.append(info)
-
+                        if self._data["words"] in line:
+                            info.setdefault(novel_info, {}). \
+                                setdefault(chapter, []) \
+                                    .extend(line[self._data["words"]])
+                    else:
+                        if info:
+                            searchLic.append(info)
+                            info={}
+                except json.JSONDecodeError as e:
+                        print("ERR(%s-%s)" % (path, e.args))
         if searchLic:
-            print(len(searchLic))
+            if len(searchLic) >1000:
+                return searchLic[:1000]
             return searchLic
         else:
-            return "no such %s in novels!"%searchJsonKey
+            return "no such %ss in novels!"%searchJsonKey
 
     @staticmethod
     def find_searchKey(searchKey):
 
-        res=[]
         for dirname in os.listdir(SearchRes.novels_path):
-            dirpath=SearchRes.novels_path+"\\"+dirname
-            if os.path.isdir(dirpath):
-                for file in os.listdir(dirpath):
-                    if searchKey in file:
-                        res.append(
-                            SearchRes.novels_path+"\\%s"%dirname+"\\%s"%file
-                        )
-        return res
+            file_path=SearchRes.novels_path+"\\"+dirname
+            if os.path.isdir(file_path):
+                yield file_path+"\\"+searchKey+".json"
 
     def search(self):
         func_name = "search_{}".format(self._data["key"])
@@ -86,4 +83,4 @@ class SearchRes(object):
         else:
             return "没有此方法！"
 
-# print(SearchRes({"key":"novels","words":"掠"}).search())
+# print(SearchRes({"key":"novels","words":"登峰造极"}).search())
