@@ -39,7 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Novel',
     'tinymce',
+    'haystack',
 ]
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'Novel.whoosh_cn_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR,"whoosh_index")
+    },
+}
+
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 10
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -120,5 +131,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+# SEARCH_INDEX='/templates/searchIndex/Novel/arcticle_text.txt'
 # TOOLS_ROOT=os.path.join(BASE_DIR, 'tools')
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')

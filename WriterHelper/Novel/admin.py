@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Arcticle,Author,Novel
+from .models import Book,Author,Arcticle,Category
 # Register your models here.
 
 # class AuthorAdmin(admin.ModelAdmin):
@@ -10,4 +10,4 @@ from .models import Arcticle,Author,Novel
 #         queryset,use_distinct=super(AuthorAdmin,self).get_search_results(request,queryset,serch_term)
 #         return queryset, use_distinct
 
-admin.site.register([Arcticle,Author,Novel])
+admin.site.register([Author,Arcticle,Book,Category])

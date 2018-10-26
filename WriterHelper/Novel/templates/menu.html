@@ -32,14 +32,17 @@
         <div class="col-md-3">
             <div class="row">
                 <ul class="nav nav-pills" role="tablist">
-                    <li class="nav-item col-md-4">
+                    <li class="nav-item col-md-3">
                         <a class="nav-link  active" data-toggle="pill" href="#db">库目</a>
                     </li>
-                    <li class="nav-item col-md-4">
+                    <li class="nav-item col-md-3">
                         <a class="nav-link" data-toggle="pill" href="#spider">添加</a>
                     </li>
-                    <li class="nav-item col-md-4">
+                    <li class="nav-item col-md-3">
                         <a class="nav-link" data-toggle="pill" href="#form">搜词</a>
+                    </li>
+                    <li class="nav-item col-md-3">
+                        <a class="nav-link" data-toggle="pill" href="#haystack_form">haystack搜词</a>
                     </li>
                 </ul>
             </div>
@@ -53,6 +56,9 @@
                     </div>
                     <div id="form" class="container-fluid tab-pane fade">
                         {% include "searchForm.html" %}
+                    </div>
+                    <div id="haystack_form" class="container-fluid tab-pane fade">
+                        {% include "searchArctical.html" %}
                     </div>
                 </div>
             </div>
@@ -78,15 +84,16 @@
                         </form>
                     </div>
                 </div>
-                 <div class="row" id="prog_showQueue" style="display: none">
-
-                </div>
+                <div class="row" id="prog_showQueue" style="display: none"></div>
             </div>
             <div class="row">
                 <div id="idioms" class="col-md-10 offset-md-1"></div>
             </div>
             <div class="row">
                 <div id="novels" class="col-md-10 offset-md-1"></div>
+            </div>
+            <div class="row">
+                <div id="haystack_novels" class="col-md-10 offset-md-1"></div>
             </div>
         </div>
     </div>
@@ -355,5 +362,10 @@
             $(this).addClass(n);
         })
     }
+</script>
+<script>
+    $("#searchArctical").click(function () {
+        
+    })
 </script>
 </html>
