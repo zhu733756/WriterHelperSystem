@@ -4,6 +4,7 @@ from django.shortcuts import render
 from .tools import SearchTools
 from .tools.Crawler import crawler_push,getOutQueueEle,check_enqueue,check_outqueue
 from .tools.BookListSpider import BookInfoSpider
+from itertools import chain
 
 def index(request):
     '''
@@ -22,18 +23,21 @@ def search_dir(request):
     req = request.POST.get("author_s")
     idioms_path = SearchTools.SearchRes.find_searchKey("idiom")
     novels_path = SearchTools.SearchRes.find_searchKey("verb")
-    idioms_path.extend(novels_path)
-    author_info_path = set([os.path.dirname(path) for path in idioms_path])
+    all_path=chain(idioms_path,novels_path)
+    author_infos = {}
+    for path in all_path:
+        info = os.path.split(os.path.dirname(path))[-1]
+        author_infos.setdefault(info,[]).append(os.path.split(path)[-1].split(".")[0])
     info_dir = {}
     if req:
-        for path in author_info_path:
-            author, book = os.path.split(path)[-1].split("-")[:]
-            if req in path:
-                info_dir.setdefault(author, []).append(book)
+        for info,v in author_infos.items():
+            if req in info:
+                author, book = info.split("-")[:]
+                info_dir.setdefault(author, []).append(book+"(%s)"%(",".join(v)))
     else:
-        for path in author_info_path:
-            author, book = os.path.split(path)[-1].split("-")[:]
-            info_dir.setdefault(author, []).append(book)
+        for info,v in author_infos.items():
+            author, book = info.split("-")[:]
+            info_dir.setdefault(author, []).append(book+"(%s)"%(",".join(v)))
     if info_dir:
         return JsonResponse(info_dir)
     else:

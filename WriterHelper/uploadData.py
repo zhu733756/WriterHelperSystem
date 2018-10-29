@@ -20,17 +20,22 @@ def main():
 
     author=os.path.split(os.path.dirname(NovelsPath))[-1]
     bookname =os.path.split(NovelsPath)[-1]
-    for title in os.listdir(NovelsPath)[:100]:
-        testFilesPath = os.path.join(NovelsPath, title)
-        with open(testFilesPath,"r",encoding="utf-8") as f:
-            content=f.read()
-        Arcticle.objects.get_or_create(
-                authors=author,
-                book_name=bookname,
-                title=title,
-                category="小说",
-                content=content,
-            )
+    author_obj,_ = Author.objects.get_or_create(name=author)
+    book_obj,_ = Book.objects.get_or_create(name=bookname)
+    category_obj,_ = Category.objects.get_or_create(category="小说")
+    print(category_obj,author_obj,book_obj)
+    title=os.listdir(NovelsPath)[0]
+    with open(os.path.join(NovelsPath,title),"r",encoding="utf-8") as f:
+        content=f.read()
+    arcticle_obj,_= Arcticle.objects.get_or_create(
+            title=title.split(".")[0],
+            content=content,
+            book=book_obj
+        )
+    arcticle_obj.authors.add(author_obj)
+    arcticle_obj.categories.add(category_obj)
+    print(arcticle_obj)
+    print("---------")
 
 if __name__ == '__main__':
     main()
