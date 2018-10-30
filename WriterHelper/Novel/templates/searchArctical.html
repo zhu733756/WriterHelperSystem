@@ -1,9 +1,10 @@
 <p></p>
 <!--搜索关键词表单-->
-<form role="search" method="get" id="searchArctical" action="{% url 'haystack_search' %}">
-    <p><input type="text" id="words" name="words" value="不可思议"></p>
-    <p style="color: #D94A38;font-size: 4px">*务必输入合法有效的动词或成语</p>
-    <p>
-        <button type="button" class="btn btn-primary">在线查询</button>
-    </p>
-</form>
+<div id="header-search-box">
+    <div id="search-form" class="search-form">
+        <form role="search" method="get" id="searchform" action="{% url 'haystack_search' %}">
+            <input type="search" name="q" placeholder="搜索"  required>
+            <button type="submit"><span class="ion-ios-search-strong"></span></button>
+        </form>
+    </div>
+</div>

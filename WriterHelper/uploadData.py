@@ -12,31 +12,65 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "WriterHelper.settings")
 django.setup()
 
 from Novel.models import Author,Book,Category,Arcticle
+from multiprocessing.dummy import Pool
+from tqdm import tqdm
 
 BasePath=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-NovelsPath=os.path.join(BasePath,"SentenceMaking/NovelsRawData/失落叶/天行")
+NovelsPath=os.path.join(BasePath,"SentenceMaking/NovelsRawData/")
+authors_path = [os.path.join(NovelsPath,author) for author in os.listdir(NovelsPath)]
 
-def main():
+class upload_data(object):
 
-    author=os.path.split(os.path.dirname(NovelsPath))[-1]
-    bookname =os.path.split(NovelsPath)[-1]
-    author_obj,_ = Author.objects.get_or_create(name=author)
-    book_obj,_ = Book.objects.get_or_create(name=bookname)
-    category_obj,_ = Category.objects.get_or_create(category="小说")
-    print(category_obj,author_obj,book_obj)
-    title=os.listdir(NovelsPath)[0]
-    with open(os.path.join(NovelsPath,title),"r",encoding="utf-8") as f:
-        content=f.read()
-    arcticle_obj,_= Arcticle.objects.get_or_create(
-            title=title.split(".")[0],
-            content=content,
-            book=book_obj
-        )
-    arcticle_obj.authors.add(author_obj)
-    arcticle_obj.categories.add(category_obj)
-    print(arcticle_obj)
-    print("---------")
+    def __init__(self):
+        self.author=None
+        self.book=None
+        self.title=None
+        self.category="小说"
+
+    def get_bookpath(self,author_path):
+        '''
+        yield author's book path
+        :param author_path:
+        :return:
+        '''
+        self.author=os.path.split(author_path)[-1]
+        for book in os.listdir(author_path):
+            self.book=book
+            book_path = os.path.join(author_path, self.book)
+            yield book_path
+
+    def handle_titles_of_one_book(self,book_path):
+        '''
+        handle titles of one book
+        :param book_path:
+        :return:
+        '''
+
+        author_obj,_ = Author.objects.get_or_create(name=self.author)
+        book_obj,_ = Book.objects.get_or_create(name=self.book)
+        category_obj,_ = Category.objects.get_or_create(category=self.category)
+        for title in tqdm(
+                os.listdir(book_path),
+                desc="Upload Data(%s|%s)"%(self.author,self.book)):
+            with open(os.path.join(book_path,title),"r",encoding="utf-8") as f:
+                content="".join(filter(lambda x:len(x)>10,f.readlines()))
+            arcticle_obj,_=Arcticle.objects.get_or_create(
+                    title=title.split(".")[0],
+                    content=content,)
+            arcticle_obj.bookname=book_obj
+            arcticle_obj.authors.add(author_obj)
+            arcticle_obj.categories.add(category_obj)
+            arcticle_obj.save()
+
+    def main(self):
+        '''
+        get a progressbar for current handled book
+        :return:
+        '''
+        for author_path in os.listdir(authors_path):
+            iterable=self.get_bookpath(author_path)
+            with Pool(5) as pool:
+                pool.map(func=self.handle_titles_of_one_book,iterable=iterable)
 
 if __name__ == '__main__':
-    main()
-    print("finished!")
+    upload_data().main()

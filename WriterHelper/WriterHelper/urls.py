@@ -20,8 +20,8 @@ from Novel import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index,name="home"),
-    path('search/', include('haystack.urls')),
-    path('search_form/', views.search_form,name="search_form"),
+    path('search/', include('haystack.urls'),name="haystack_search"),
+    path('search_idioms/', views.search_idioms,name="search_idioms"),
     path('search_dir/', views.search_dir,name="search_dir"),
     path('search_booklist/', views.search_booklist,name="search_booklist"),
     path('search_duplicate_url/', views.search_duplicate_url,name="search_duplicate_url"),

@@ -43,7 +43,7 @@ def search_dir(request):
     else:
         return JsonResponse("没有检测到可用书籍信息！", safe=False)
 
-def search_form(request):
+def search_idioms(request):
     '''
     搜索匹配词条的结果
     :param request:
@@ -52,10 +52,8 @@ def search_form(request):
     res={}
     res.setdefault("words", request.POST["words"])
     idioms = SearchTools.SearchRes(res).search_idioms()
-    novels = SearchTools.SearchRes(res).search_novels()
     data={
         "idioms":idioms,
-        "novels":novels,
     }
     return JsonResponse(data)
 

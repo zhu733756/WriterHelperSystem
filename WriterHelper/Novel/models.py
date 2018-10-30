@@ -24,7 +24,7 @@ class Arcticle(models.Model):
     title = models.CharField('标题', max_length=128)
     content = HTMLField("内容")
 
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    bookname = models.ForeignKey(Book, on_delete=models.CASCADE,null=True,blank=True,default=None)
     authors = models.ManyToManyField(Author)
     categories = models.ManyToManyField(Category)
 
