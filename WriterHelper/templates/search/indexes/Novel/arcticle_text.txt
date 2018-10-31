@@ -1,4 +1,2 @@
 {{ object.title }}
-{{ object.authors.name }}
 {{ object.content }}
-{{ object.bookname.name }}

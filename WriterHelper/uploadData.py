@@ -19,7 +19,7 @@ BasePath=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NovelsPath=os.path.join(BasePath,"SentenceMaking/NovelsRawData/")
 authors_path = [os.path.join(NovelsPath,author) for author in os.listdir(NovelsPath)]
 
-class upload_data(object):
+class UploadData(object):
 
     def __init__(self):
         self.author=None
@@ -29,7 +29,7 @@ class upload_data(object):
 
     def get_bookpath(self,author_path):
         '''
-        yield author's book path
+        yield paths of a book
         :param author_path:
         :return:
         '''
@@ -41,14 +41,16 @@ class upload_data(object):
 
     def handle_titles_of_one_book(self,book_path):
         '''
-        handle titles of one book
+        a progressbar during handling arcticles of a book
         :param book_path:
         :return:
         '''
-
         author_obj,_ = Author.objects.get_or_create(name=self.author)
         book_obj,_ = Book.objects.get_or_create(name=self.book)
         category_obj,_ = Category.objects.get_or_create(category=self.category)
+        author_obj.save()
+        book_obj.save()
+        category_obj.save()
         for title in tqdm(
                 os.listdir(book_path),
                 desc="Upload Data(%s|%s)"%(self.author,self.book)):
@@ -64,7 +66,7 @@ class upload_data(object):
 
     def main(self):
         '''
-        get a progressbar for current handled book
+        threadpools for handling books of an author
         :return:
         '''
         for author_path in os.listdir(authors_path):
@@ -73,4 +75,4 @@ class upload_data(object):
                 pool.map(func=self.handle_titles_of_one_book,iterable=iterable)
 
 if __name__ == '__main__':
-    upload_data().main()
+    UploadData().main()

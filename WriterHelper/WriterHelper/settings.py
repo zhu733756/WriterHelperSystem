@@ -112,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+HAYSTACK_CUSTOM_HIGHLIGHTER="Novel.utils.BorkHighlighter"
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/

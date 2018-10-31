@@ -1,29 +1,49 @@
-{% extends "Novel/templates/menu.html" %}
+{% extends "base.html" %}
 
 {% load highlight %}
 
 {% block hay_search %}
-
-    {% if query %}
-    <h3>Results</h3>
-
-    {% for result in page.object_list %}
-    <p>
-        <a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>
-    </p>
-    {% empty %}
-    <p>No results found.</p>
-    {% endfor %}
-
-    {% if page.has_previous or page.has_next %}
-    <div>
-        {% if page.has_previous %}<a href="?q={{ query }}&page={{ page.previous_page_number }}">{% endif %}« Previous{% if page.has_previous %}</a>{% endif %}
-        |
-        {% if page.has_next %}<a href="?q={{ query }}&page={{ page.next_page_number }}">{% endif %}Next »{% if page.has_next %}</a>{% endif %}
-    </div>
-    {% endif %}
+{% if query %}
+        {% for result in page.object_list %}
+            <article class="arcticle arcticle-{{ result.object.pk }}">
+                <header class="entry-header">
+                    <h4 class="entry-title">
+                        {% highlight result.object.title with query %}
+                    </h4>
+                    <div class="entry-meta">
+                        <span class="post-date">
+                            <a href="#">
+                                <time class="entry-date" datetime="{{ result.object.pub_time }}">
+                                {{ result.object.pub_time }}
+                                </time>
+                            </a>
+                        </span>|
+                        <span class="arcticle-author">{{ result.object.authors.name }}</span>|
+                        <span class="arcticle-author">{{ result.object.bookname.name }}</span>|
+                        <span class="post-category">
+                            {{ result.object.categories.category }}
+                        </span>
+                    </div>
+                </header>
+                <div class="entry-content clearfix">
+                    {% highlight result.object.content with query max_length 100 %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="no-post">没有搜索到你想要的结果！</div>
+        {% endfor %}
+        {% if page.has_previous or page.has_next %}
+            <div>
+                {% if page.has_previous %}
+                    <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous
+                {% if page.has_previous %}</a>{% endif %}
+                |
+                {% if page.has_next %}<a href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% endif %}Next
+                &raquo;{% if page.has_next %}</a>{% endif %}
+            </div>
+        {% endif %}
     {% else %}
-    {# Show some example queries to run, maybe query syntax, something else? #}
+        请输入搜索关键词，例如 django
     {% endif %}
 
 {% endblock %}

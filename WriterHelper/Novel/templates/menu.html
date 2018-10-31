@@ -15,11 +15,6 @@
             integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <style>
-        span.highlighted {
-            color: red;
-        }
-    </style>
     <script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
 </head>
@@ -39,31 +34,31 @@
             <div class="row">
                 <ul class="nav nav-pills" role="tablist">
                     <li class="nav-item col-md-3">
-                        <a class="nav-link  active" data-toggle="pill" href="#db">库目</a>
+                        <a class="nav-link" data-toggle="pill" href="#db">库目</a>
                     </li>
                     <li class="nav-item col-md-3">
                         <a class="nav-link" data-toggle="pill" href="#spider">添加</a>
                     </li>
                     <li class="nav-item col-md-3">
-                        <a class="nav-link" data-toggle="pill" href="#form">成语</a>
+                        <a class="nav-link" data-toggle="pill" href="#idioms-form">成语</a>
                     </li>
                     <li class="nav-item col-md-3">
-                        <a class="nav-link" data-toggle="pill" href="#haystack_form">句子</a>
+                        <a class="nav-link active" data-toggle="pill" href="#haystack_form">句子</a>
                     </li>
                 </ul>
             </div>
             <div class="row">
                 <div class="tab-content">
-                    <div id="db" class="container-fluid tab-pane active">
+                    <div id="db" class="container-fluid tab-pane fade">
                         {% include "searchDir.html" %}
                     </div>
                     <div id="spider" class="container-fluid tab-pane fade">
                         {% include "searchBookList.html" %}
                     </div>
-                    <div id="form" class="container-fluid tab-pane fade">
+                    <div id="idioms-form" class="container-fluid tab-pane fade">
                         {% include "searchForm.html" %}
                     </div>
-                    <div id="haystack_form" class="container-fluid tab-pane fade">
+                    <div id="haystack_form" class="container-fluid tab-pane active">
                         {% include 'searchArctical.html' %}
                     </div>
                 </div>
