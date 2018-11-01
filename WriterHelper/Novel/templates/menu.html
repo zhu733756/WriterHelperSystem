@@ -315,51 +315,10 @@
                     $("#idioms").append($("<div class='row'></div>").append(dl));
                     $("<br>").insertAfter("#idioms");
                 }
-//                if (novels.constructor === Array) {
-//                    for (var i = novels.length - 1; i >= 0; i--) {
-//                        $.each(novels[i], function (key, value) {
-//                            var h4dl = $("<h4></h4>").append($("<dl></dl>").append("小说-" + key));
-//                            $("#novels").append($("<div class='row'></div>").append(h4dl));
-//                            var cls_row = $("<div class='row'></div>");
-//                            var dl = $("<dl></dl>");
-//                            $.each(value, function (k, v) {
-//                                var x = Math.floor(Math.random() * 1000);
-//                                for (var y = v.length - 1; y >= 0; y--) {
-//                                    var dt = ($("<dt></dt>").text(k));
-//                                    var m = "novels_li_" + x.toString() + "_" + y.toString();
-//                                    var n = "novels_li_" + y.toString() + "_" + x.toString();
-//                                    var dd = $("<dd></dd>").html(v[y]).addClass(m);
-//                                    dl.append(dt);
-//                                    dd.append(toggle(m, n));
-//                                    dl.append(dd);
-//                                    cls_row.append(dl);
-//                                    var clipboard = new ClipboardJS("." + n.toString());
-//                                    clipboard.on('error', function (e) {
-//                                        console.log(e);
-//                                    });
-//                                }
-//                            });
-//                            $("#novels").append(cls_row);
-//                            $("<br>").insertAfter("#novels");
-//                        })
-//                    }
-//                }
-//                else {
-//                    var ul = $("<ul></ul>");
-//                    $("#novels").append(ul.text(novels));
-//                }
+
             }
         })
     })
-</script>
-<script>
-    <!--触发复制按钮-->
-    function toggle(m, n) {
-        var btn = $("<button class='btn btn-primary'>复制</button>").attr("data-clipboard-target", "." + m.toString());
-        return btn.on("click", function () {
-            $(this).addClass(n);
-        })
-    }
 </script>
 
 </html>
