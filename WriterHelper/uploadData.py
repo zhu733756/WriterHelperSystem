@@ -69,7 +69,7 @@ class UploadData(object):
         threadpools for handling books of an author
         :return:
         '''
-        for author_path in os.listdir(authors_path):
+        for author_path in authors_path:
             iterable=self.get_bookpath(author_path)
             with Pool(5) as pool:
                 pool.map(func=self.handle_titles_of_one_book,iterable=iterable)

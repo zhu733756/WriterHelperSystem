@@ -13,7 +13,7 @@
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/SentenceMaking/Src/4.png)
 #### 2.3 后台进度条：
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/SentenceMaking/Src/5.png)
-#### 3、搜索索引分词：
+#### 3、搜索句子，结果如下：
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/SentenceMaking/Src/6.png)
 #### 4、手动分词（tools目录下运行SplitWords.py）：
 ![python](https://github.com/zhu733756/WriterHelperSystem/raw/master/SentenceMaking/Src/7.png)
