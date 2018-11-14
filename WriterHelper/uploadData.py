@@ -17,29 +17,27 @@ from tqdm import tqdm
 
 BasePath=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 NovelsPath=os.path.join(BasePath,"SentenceMaking/NovelsRawData/")
-authors_path = [os.path.join(NovelsPath,author) for author in os.listdir(NovelsPath)]
 
 class UploadData(object):
 
     def __init__(self):
         self.author=None
         self.book=None
-        self.title=None
         self.category="小说"
 
-    def get_bookpath(self,author_path):
+
+    def get_bookpath(self,book_path):
         '''
-        yield paths of a book
-        :param author_path:
+        yield file paths of a book
+        :param file_path:
         :return:
         '''
-        self.author=os.path.split(author_path)[-1]
-        for book in os.listdir(author_path):
+        self.author=os.path.split(book_path)[-1]
+        for book in os.listdir(book_path):
             self.book=book
-            book_path = os.path.join(author_path, self.book)
-            yield book_path
+            yield os.path.join(book_path, self.book)
 
-    def handle_titles_of_one_book(self,book_path):
+    def handle_titles_of_one_book(self,file_path):
         '''
         a progressbar during handling arcticles of a book
         :param book_path:
@@ -51,28 +49,32 @@ class UploadData(object):
         author_obj.save()
         book_obj.save()
         category_obj.save()
-        for title in tqdm(
-                os.listdir(book_path),
-                desc="Upload Data(%s|%s)"%(self.author,self.book)):
-            with open(os.path.join(book_path,title),"r",encoding="utf-8") as f:
-                content="".join(filter(lambda x:len(x)>10,f.readlines()))
-            arcticle_obj,_=Arcticle.objects.get_or_create(
-                    title=title.split(".")[0],
-                    content=content,)
-            arcticle_obj.bookname=book_obj
-            arcticle_obj.authors.add(author_obj)
-            arcticle_obj.categories.add(category_obj)
-            arcticle_obj.save()
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = "".join(filter(lambda x: len(x) > 10, f.readlines()))
+        arcticle_obj, _ = Arcticle.objects.get_or_create(
+            title=os.path.split(file_path)[-1].split(".")[0],
+            content=content, )
+        arcticle_obj.bookname = book_obj
+        arcticle_obj.authors.add(author_obj)
+        arcticle_obj.categories.add(category_obj)
+        arcticle_obj.save()
 
     def main(self):
         '''
         threadpools for handling books of an author
         :return:
         '''
-        for author_path in authors_path:
-            iterable=self.get_bookpath(author_path)
-            with Pool(5) as pool:
-                pool.map(func=self.handle_titles_of_one_book,iterable=iterable)
+        author_books_path=[]
+        for author_path in os.listdir(NovelsPath):
+            authors_path=os.path.join(NovelsPath,author_path)
+            for book_path in os.listdir(authors_path):
+                author_books_path.append(os.path.join(authors_path,book_path))
+        total=len(author_books_path)
+        with Pool(5) as pool:
+            _=[x for x in tqdm(
+                    pool.imap(func=self.handle_titles_of_one_book,iterable=author_books_path),
+                    total=total)
+               ]
 
 if __name__ == '__main__':
     UploadData().main()
